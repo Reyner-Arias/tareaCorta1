@@ -39,24 +39,23 @@ void *rowXColumn(void *datosP)
 int main(){
     time_t t1;
     srand ( (unsigned) time (&t1));
-    double promedio;
+    double promedio = 0.0;
 
     printf("Digite el número que definirá la cantidad de filas y columnas de las matrices cuadradas aleatorias\n");
     scanf("%d", &n);
     double tiempos[n];
 
+    matriz1 = malloc(n * sizeof *matriz1);
+    matriz2 = malloc(n * sizeof *matriz2);
+    matrizRes = malloc(n * sizeof *matrizRes);
+
+    for(int i = 0; i < n; i++){
+        matriz1[i] = malloc(n * sizeof *matriz1[i]);
+        matriz2[i] = malloc(n * sizeof *matriz2[i]);
+        matrizRes[i] = malloc(n * sizeof *matrizRes[i]);
+    }
+
     for(int rep = 0; rep < 100; rep++){
-        
-        matriz1 = malloc(n * sizeof *matriz1);
-        matriz2 = malloc(n * sizeof *matriz2);
-        matrizRes = malloc(n * sizeof *matrizRes);
-
-        for(int i = 0; i < n; i++){
-            matriz1[i] = malloc(n * sizeof *matriz1[i]);
-            matriz2[i] = malloc(n * sizeof *matriz2[i]);
-            matrizRes[i] = malloc(n * sizeof *matrizRes[i]);
-        }
-
         double executionTime = 0.0;
 
         rellenarMatriz(matriz1);
@@ -81,7 +80,7 @@ int main(){
 
         clock_t end = clock();
         executionTime += (double)(end - begin) / CLOCKS_PER_SEC;
-        tiempos[thread] = executionTime;
+        tiempos[rep] = executionTime;
         promedio += executionTime;
     }
     promedio = promedio/100;
