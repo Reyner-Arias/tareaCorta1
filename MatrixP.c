@@ -39,9 +39,11 @@ int main(){
     srand ( (unsigned) time (&t1));
     double promedio = 0.0;
 
+    FILE *stats = fopen("StatsP.txt", "w");
+    fclose(stats);
+
     printf("Digite el número que definirá la cantidad de filas y columnas de las matrices cuadradas aleatorias\n");
     scanf("%d", &n);
-    double tiempos[n];
     pid_t parent = getpid();
 
     matriz1 = malloc(n * sizeof *matriz1);
@@ -54,7 +56,7 @@ int main(){
         matrizRes[i] = malloc(n * sizeof *matrizRes[i]);
     }
 
-    for(int rep = 0; rep < 40; rep++){
+    for(int rep = 0; rep < 100; rep++){
         double executionTime = 0.0;
 
         rellenarMatriz(matriz1);
@@ -93,7 +95,7 @@ int main(){
                         close(fds[i][1]);
                     }
                 }
-                rep = 100;
+                exit(0);
             } 
             counter++;
         } while ((getpid() == parent && processes[counter] != -1) && (counter < n));
@@ -107,14 +109,31 @@ int main(){
                 read(fds[i][0], matrizRes[i], sizeof(matrizRes[counter])*n);
                 close(fds[i][0]);
             }
+
+            char name[30];
+            if(rep<10) sprintf(name, "matricesResP/Mat_0%d.txt", rep);
+            else sprintf(name, "matricesResP/Mat_%d.txt", rep);
+            
+            FILE *file = fopen(name, "w");
+            for(int i = 0; i < n; i++){
+                for(int j = 0; j < n; j++){
+                    if(j==n-1) fprintf(file, "%d \n", matrizRes[i][j]);
+                    else fprintf(file, "%d \t", matrizRes[i][j]);
+                }
+            }
+            fclose(file);
             clock_t end = clock();
-            tiempos[rep] = executionTime;
-            executionTime += (double)(end - begin) / CLOCKS_PER_SEC;
-        } 
+            FILE *stats = fopen("StatsP.txt", "a+");
+            fprintf(stats, "Rep: %d, ExecutionTime: %f\n", rep, (double)(end - begin) / CLOCKS_PER_SEC);
+            fclose(stats);
+            promedio += (double)(end - begin) / CLOCKS_PER_SEC;
+        }
     }
     if(parent == getpid()){
         promedio = promedio/100;
-        printf("El tiempo promedio fue de %f segundos\n", promedio);
+        stats = fopen("StatsP.txt", "a+");
+        fprintf(stats, "Mean time: %f\n", promedio);
+        fclose(stats);
     } 
     
     for(int i = 0; i < n; i++){
